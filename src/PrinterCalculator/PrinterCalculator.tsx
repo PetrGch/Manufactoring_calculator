@@ -1,6 +1,6 @@
 import React, {useEffect, useRef} from "react";
 import * as THREE from "three";
-import {BufferGeometry, OrthographicCamera, PerspectiveCamera, Scene, WebGLRenderer} from "three";
+import {BufferGeometry, Mesh, OrthographicCamera, PerspectiveCamera, Scene, WebGLRenderer} from "three";
 import PrinterCalculatorScene from "./PrinterCalculatorScene/PrinterCalculatorScene";
 import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
 
@@ -12,43 +12,22 @@ import {GCodeLoader} from "three/examples/jsm/loaders/GCodeLoader";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {Material} from "three/src/materials/Material";
 import {LineSegments} from "three/src/objects/LineSegments";
-
-function getVolume(geometry: any) {
-    if (!geometry.isBufferGeometry) {
-        console.log("'geometry' must be an indexed or non-indexed buffer geometry");
-        return 0;
-    }
-    var isIndexed = geometry.index !== null;
-    let position = geometry.attributes.position;
-    let sum = 0;
-    let p1 = new THREE.Vector3(),
-        p2 = new THREE.Vector3(),
-        p3 = new THREE.Vector3();
-    if (!isIndexed) {
-        let faces = position.count / 3;
-        for (let i = 0; i < faces; i++) {
-            p1.fromBufferAttribute(position, i * 3 + 0);
-            p2.fromBufferAttribute(position, i * 3 + 1);
-            p3.fromBufferAttribute(position, i * 3 + 2);
-            sum += signedVolumeOfTriangle(p1, p2, p3);
-        }
-    }
-    else {
-        let index = geometry.index;
-        let faces = index.count / 3;
-        for (let i = 0; i < faces; i++){
-            p1.fromBufferAttribute(position, index.array[i * 3 + 0]);
-            p2.fromBufferAttribute(position, index.array[i * 3 + 1]);
-            p3.fromBufferAttribute(position, index.array[i * 3 + 2]);
-            sum += signedVolumeOfTriangle(p1, p2, p3);
-        }
-    }
-    return sum;
-}
-
-function signedVolumeOfTriangle(p1: any, p2: any, p3: any) {
-    return p1.dot(p2.cross(p3)) / 6.0;
-}
+import {
+    PRINTER_AXES_HELPER_POSITION_X,
+    PRINTER_AXES_HELPER_POSITION_Y,
+    PRINTER_AXES_HELPER_POSITION_Z,
+    PRINTER_AXES_HELPER_SIZE, PRINTER_CAMERA_FAR, PRINTER_CAMERA_FOV, PRINTER_CAMERA_NEAR,
+    PRINTER_CAMERA_POSITION_X,
+    PRINTER_CAMERA_POSITION_Y,
+    PRINTER_CAMERA_POSITION_Z,
+    PRINTER_GRID_COLOR_1,
+    PRINTER_GRID_COLOR_2,
+    PRINTER_GRID_DIMENSION,
+    PRINTER_GRID_DIVISION,
+    PRINTER_GRID_ROTATE_X,
+    PRINTER_SCENE_BACKGROUND,
+    PRINTER_SCENE_ROTATE_X
+} from "./PrinterCalculatorConstant";
 
 const PRINTER_MASH_NAME = "printer_mesh";
 
@@ -58,7 +37,7 @@ export default function PrinterCalculator() {
         renderer: WebGLRenderer,
         camera: PerspectiveCamera,
         loader: STLLoader,
-        mesh,
+        mesh: Mesh,
         boxHelper: LineSegments,
         material: Material,
         offsetWidth: number,
@@ -88,18 +67,33 @@ export default function PrinterCalculator() {
 
     const init = () => {
         if (mountRef && mountRef.current) {
-            const axesHelper = new THREE.AxesHelper( 100);
+            const axesHelper = new THREE.AxesHelper(PRINTER_AXES_HELPER_SIZE);
             material = new THREE.MeshNormalMaterial();
             offsetWidth = mountRef.current.clientWidth;
             offsetHeight = mountRef.current.clientHeight;
 
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xcccccc)
-            scene.rotateX(-(90 * Math.PI/180))
-            scene.add( axesHelper );
+            scene.background = new THREE.Color(PRINTER_SCENE_BACKGROUND)
+            scene.rotateX(PRINTER_SCENE_ROTATE_X)
+            axesHelper.position.x = PRINTER_AXES_HELPER_POSITION_X;
+            axesHelper.position.y = PRINTER_AXES_HELPER_POSITION_Y;
+            axesHelper.position.z = PRINTER_AXES_HELPER_POSITION_Z;
+            scene.add(axesHelper);
 
-            camera = new THREE.PerspectiveCamera( 45, offsetWidth / offsetHeight, 0.1, 1000 );
-            camera.position.set( 1, 90, 0 );
+            const gridHelper = new THREE.GridHelper(
+                PRINTER_GRID_DIMENSION,
+                PRINTER_GRID_DIVISION,
+                PRINTER_GRID_COLOR_1,
+                PRINTER_GRID_COLOR_2);
+            gridHelper.rotateX(PRINTER_GRID_ROTATE_X)
+            scene.add( gridHelper );
+
+            camera = new THREE.PerspectiveCamera(
+                PRINTER_CAMERA_FOV,
+                offsetWidth / offsetHeight,
+                PRINTER_CAMERA_NEAR,
+                PRINTER_CAMERA_FAR);
+            camera.position.set(PRINTER_CAMERA_POSITION_X, PRINTER_CAMERA_POSITION_Y, PRINTER_CAMERA_POSITION_Z);
 
             renderer = new THREE.WebGL1Renderer();
             renderer.setSize(offsetWidth, offsetHeight);
@@ -133,13 +127,12 @@ export default function PrinterCalculator() {
                 mesh.name = PRINTER_MASH_NAME;
 
                 geometry.computeBoundingBox();
-                const bb = geometry.boundingBox;
-                if (bb) {
-                    const width = bb.max.x - bb.min.x;
-                    const height = bb.max.y - bb.min.y;
-                    const depth = bb.max.z - bb.min.z;
+                const boundingBox = geometry.boundingBox;
+                if (boundingBox) {
+                    const width = boundingBox.max.x - boundingBox.min.x;
+                    const height = boundingBox.max.y - boundingBox.min.y;
 
-                    camera.position.set( width * 4, 90, 0 );
+                    camera.position.set( width * 5, height * 3, 0 );
                 }
                 scene.add(mesh);
                 scene.add(boxHelper);
