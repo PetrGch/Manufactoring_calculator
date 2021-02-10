@@ -86,7 +86,7 @@ export default function PrinterCalculator() {
                 PRINTER_GRID_COLOR_1,
                 PRINTER_GRID_COLOR_2);
             gridHelper.rotateX(PRINTER_GRID_ROTATE_X)
-            scene.add( gridHelper );
+            scene.add(gridHelper);
 
             camera = new THREE.PerspectiveCamera(
                 PRINTER_CAMERA_FOV,
