@@ -1,11 +1,10 @@
-import React, {ForwardedRef, useEffect, useRef} from "react";
-import * as THREE from "three";
+import React, {ForwardedRef} from "react";
 
 import "./PrinterCalculatorScene.less";
 
 const PrinterCalculatorScene = React.forwardRef((props, ref: ForwardedRef<HTMLDivElement>) => (
     <div
-        className="CncCalculatorScene"
+        className="PrinterCalculatorScene"
         ref={ref}
     />
 ));

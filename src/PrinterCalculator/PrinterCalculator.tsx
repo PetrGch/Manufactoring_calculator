@@ -1,15 +1,12 @@
 import React, {useEffect, useRef} from "react";
 import * as THREE from "three";
-import {BufferGeometry, Mesh, OrthographicCamera, PerspectiveCamera, Scene, WebGLRenderer} from "three";
+import { UploadOutlined } from '@ant-design/icons';
+import {Mesh, PerspectiveCamera, Scene, WebGLRenderer} from "three";
 import PrinterCalculatorScene from "./PrinterCalculatorScene/PrinterCalculatorScene";
 import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
 
 import "./PrinterCalculator.less";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {AnaglyphEffect} from "three/examples/jsm/effects/AnaglyphEffect";
-import {MeshSurfaceSampler} from "three/examples/jsm/math/MeshSurfaceSampler";
-import {GCodeLoader} from "three/examples/jsm/loaders/GCodeLoader";
-import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {Material} from "three/src/materials/Material";
 import {LineSegments} from "three/src/objects/LineSegments";
 import {
@@ -28,6 +25,7 @@ import {
     PRINTER_SCENE_BACKGROUND,
     PRINTER_SCENE_ROTATE_X
 } from "./PrinterCalculatorConstant";
+import {Button, Upload} from "antd";
 
 const PRINTER_MASH_NAME = "printer_mesh";
 
@@ -154,10 +152,22 @@ export default function PrinterCalculator() {
     }, [])
 
     return (
-        <div className="CncCalculator">
-            <PrinterCalculatorScene
-                ref={mountRef}
-            />
+        <div className="PrinterCalculator">
+            <div className="PrinterCalculator__scene">
+                <PrinterCalculatorScene
+                    ref={mountRef}
+                />
+            </div>
+
+            <Upload
+                // fileList={this.state.fileList}
+                multiple={false}
+                onChange={(info) => {
+                    console.log(info)
+                }}
+            >
+                <Button icon={<UploadOutlined />}>Upload</Button>
+            </Upload>
 
             <input type="file" onChange={(event) => {
                 if (event && event.target && event.target.files) {
