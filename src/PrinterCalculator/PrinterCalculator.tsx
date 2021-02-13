@@ -26,11 +26,13 @@ import {
     PRINTER_SCENE_ROTATE_X
 } from "./PrinterCalculatorConstant";
 import {Button, Upload} from "antd";
+import PrinterCalculatorSideBar from "./PrinterCalculatorSideBar/PrinterCalculatorSideBar";
 
 const PRINTER_MASH_NAME = "printer_mesh";
 
 export default function PrinterCalculator() {
-    const mountRef = useRef<HTMLDivElement>(null);
+    const sceneRef = useRef<HTMLDivElement>(null);
+    const uploadInputRef = useRef<HTMLInputElement>(null);
     let scene: Scene,
         renderer: WebGLRenderer,
         camera: PerspectiveCamera,
@@ -42,10 +44,15 @@ export default function PrinterCalculator() {
         offsetHeight: number;
 
     const resizeWindowListener = () => {
-        renderer.setSize(offsetWidth, offsetHeight);
+        if (sceneRef && sceneRef.current) {
+            offsetWidth = sceneRef.current.clientWidth;
+            offsetHeight = sceneRef.current.clientHeight;
+            renderer.setSize(offsetWidth, offsetHeight);
 
-        camera.aspect = offsetWidth / offsetHeight;
-        camera.updateProjectionMatrix();
+            camera.aspect = offsetWidth / offsetHeight;
+            console.log()
+            camera.updateProjectionMatrix();
+        }
     }
 
     const update = function() {
@@ -64,11 +71,11 @@ export default function PrinterCalculator() {
     }
 
     const init = () => {
-        if (mountRef && mountRef.current) {
+        if (sceneRef && sceneRef.current) {
             const axesHelper = new THREE.AxesHelper(PRINTER_AXES_HELPER_SIZE);
             material = new THREE.MeshNormalMaterial();
-            offsetWidth = mountRef.current.clientWidth;
-            offsetHeight = mountRef.current.clientHeight;
+            offsetWidth = sceneRef.current.clientWidth;
+            offsetHeight = sceneRef.current.clientHeight;
 
             scene = new THREE.Scene();
             scene.background = new THREE.Color(PRINTER_SCENE_BACKGROUND)
@@ -102,7 +109,7 @@ export default function PrinterCalculator() {
             window.controls = new OrbitControls(camera, renderer.domElement)
             window.addEventListener("resize", resizeWindowListener);
 
-            mountRef.current.appendChild(renderer.domElement);
+            sceneRef.current.appendChild(renderer.domElement);
             animationLoop();
         }
     }
@@ -155,27 +162,15 @@ export default function PrinterCalculator() {
         <div className="PrinterCalculator">
             <div className="PrinterCalculator__scene">
                 <PrinterCalculatorScene
-                    ref={mountRef}
+                    ref={sceneRef}
                 />
             </div>
 
-            <Upload
-                // fileList={this.state.fileList}
-                multiple={false}
-                onChange={(info) => {
-                    console.log(info)
-                }}
-            >
-                <Button icon={<UploadOutlined />}>Upload</Button>
-            </Upload>
-
-            <input type="file" onChange={(event) => {
-                if (event && event.target && event.target.files) {
-                    const path: string = (window.URL || window.webkitURL).createObjectURL(event.target.files[0]);
-
-                    loadSTLGeometry(path)
-                }
-            }}/>
+            <div>
+                <PrinterCalculatorSideBar
+                    loadSTLGeometry={loadSTLGeometry}
+                />
+            </div>
         </div>
     );
 }
