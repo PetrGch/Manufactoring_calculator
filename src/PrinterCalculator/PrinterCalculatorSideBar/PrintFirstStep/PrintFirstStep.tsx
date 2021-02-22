@@ -4,10 +4,11 @@ import {UploadOutlined} from "@ant-design/icons";
 import {PRINTER_CALCULATOR_STEP} from "../PrinterCalculatorSideBar";
 
 import "./PrintFirstStep.less";
+import {BufferGeometry} from "three";
 
 interface PrintFirstStepProps {
     setStepStatus: (step: PRINTER_CALCULATOR_STEP, stepState: boolean) => void;
-    loadSTLGeometry: (path: string) => void;
+    loadSTLGeometry: (path: string, loaded?: (geometry: BufferGeometry) => void, error?: (err: ErrorEvent) => void) => void;
 }
 
 export default function PrintFirstStep(props: PrintFirstStepProps) {

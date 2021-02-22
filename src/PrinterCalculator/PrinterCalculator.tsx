@@ -1,7 +1,7 @@
 import React, {useEffect, useRef} from "react";
 import * as THREE from "three";
 import { UploadOutlined } from '@ant-design/icons';
-import {Mesh, PerspectiveCamera, Scene, WebGLRenderer} from "three";
+import {BufferGeometry, Mesh, PerspectiveCamera, Scene, WebGLRenderer} from "three";
 import PrinterCalculatorScene from "./PrinterCalculatorScene/PrinterCalculatorScene";
 import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
 
@@ -114,7 +114,7 @@ export default function PrinterCalculator() {
         }
     }
 
-    const loadSTLGeometry = (path: string) => {
+    const loadSTLGeometry = (path: string, loaded?: (geometry: BufferGeometry) => void, error?: (err: ErrorEvent) => void) => {
         if (!path) throw Error("Uploaded file path is incorrect");
 
         const previousObject = scene.getObjectByName(PRINTER_MASH_NAME);
@@ -141,12 +141,20 @@ export default function PrinterCalculator() {
                 }
                 scene.add(mesh);
                 scene.add(boxHelper);
+
+                if (typeof loaded === "function") {
+                    loaded(geometry);
+                }
             },
             function(progress) {
                 console.info(progress)
             },
-            function (error) {
-                console.error(error)
+            function (err) {
+                console.error(err)
+
+                if (typeof error === "function") {
+                    error(err);
+                }
             })
     }
 
@@ -166,7 +174,7 @@ export default function PrinterCalculator() {
                 />
             </div>
 
-            <div>
+            <div className="PrinterCalculator__sideBar">
                 <PrinterCalculatorSideBar
                     loadSTLGeometry={loadSTLGeometry}
                 />

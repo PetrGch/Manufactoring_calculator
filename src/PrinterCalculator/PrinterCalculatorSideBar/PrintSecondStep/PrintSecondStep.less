@@ -8,4 +8,21 @@
   &__title {
     width: 100%;
   }
+
+  &__parameter {
+    &_dimension,
+    &_area {
+      width: 100%;
+
+      & > span {
+        padding: 10px 0;
+        max-width: 300px;
+        width: 70%;
+
+        & .ant-input-group-addon {
+          width: 80px;
+        }
+      }
+    }
+  }
 }
