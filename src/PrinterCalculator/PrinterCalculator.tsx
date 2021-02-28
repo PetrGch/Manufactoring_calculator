@@ -1,19 +1,19 @@
 import React, {useEffect, useRef} from "react";
 import * as THREE from "three";
-import { UploadOutlined } from '@ant-design/icons';
-import {BufferGeometry, Mesh, PerspectiveCamera, Scene, WebGLRenderer} from "three";
+import {BufferGeometry, Material, Mesh, MeshPhysicalMaterial, PerspectiveCamera, Scene, WebGLRenderer} from "three";
+
 import PrinterCalculatorScene from "./PrinterCalculatorScene/PrinterCalculatorScene";
 import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
-
-import "./PrinterCalculator.less";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {Material} from "three/src/materials/Material";
 import {LineSegments} from "three/src/objects/LineSegments";
 import {
     PRINTER_AXES_HELPER_POSITION_X,
     PRINTER_AXES_HELPER_POSITION_Y,
     PRINTER_AXES_HELPER_POSITION_Z,
-    PRINTER_AXES_HELPER_SIZE, PRINTER_CAMERA_FAR, PRINTER_CAMERA_FOV, PRINTER_CAMERA_NEAR,
+    PRINTER_AXES_HELPER_SIZE,
+    PRINTER_CAMERA_FAR,
+    PRINTER_CAMERA_FOV,
+    PRINTER_CAMERA_NEAR,
     PRINTER_CAMERA_POSITION_X,
     PRINTER_CAMERA_POSITION_Y,
     PRINTER_CAMERA_POSITION_Z,
@@ -22,13 +22,20 @@ import {
     PRINTER_GRID_DIMENSION,
     PRINTER_GRID_DIVISION,
     PRINTER_GRID_ROTATE_X,
+    PRINTER_LIGHT_COLOR,
+    PRINTER_LIGHT_DECAY,
+    PRINTER_LIGHT_DISTANCE,
+    PRINTER_LIGHT_INTENSITY,
+    PRINTER_LIGHT_POSITION_X,
+    PRINTER_LIGHT_POSITION_Y,
+    PRINTER_LIGHT_POSITION_Z,
+    PRINTER_MASH_NAME,
     PRINTER_SCENE_BACKGROUND,
     PRINTER_SCENE_ROTATE_X
 } from "./PrinterCalculatorConstant";
-import {Button, Upload} from "antd";
 import PrinterCalculatorSideBar from "./PrinterCalculatorSideBar/PrinterCalculatorSideBar";
 
-const PRINTER_MASH_NAME = "printer_mesh";
+import "./PrinterCalculator.less";
 
 export default function PrinterCalculator() {
     const sceneRef = useRef<HTMLDivElement>(null);
@@ -39,7 +46,7 @@ export default function PrinterCalculator() {
         loader: STLLoader,
         mesh: Mesh,
         boxHelper: LineSegments,
-        material: Material,
+        material: Material | MeshPhysicalMaterial,
         offsetWidth: number,
         offsetHeight: number;
 
@@ -99,6 +106,10 @@ export default function PrinterCalculator() {
                 PRINTER_CAMERA_NEAR,
                 PRINTER_CAMERA_FAR);
             camera.position.set(PRINTER_CAMERA_POSITION_X, PRINTER_CAMERA_POSITION_Y, PRINTER_CAMERA_POSITION_Z);
+
+            const light = new THREE.PointLight(PRINTER_LIGHT_COLOR, PRINTER_LIGHT_INTENSITY, PRINTER_LIGHT_DISTANCE, PRINTER_LIGHT_DECAY);
+            light.position.set(PRINTER_LIGHT_POSITION_X, PRINTER_LIGHT_POSITION_Y, PRINTER_LIGHT_POSITION_Z);
+            scene.add(light);
 
             renderer = new THREE.WebGL1Renderer();
             renderer.setSize(offsetWidth, offsetHeight);
@@ -166,6 +177,15 @@ export default function PrinterCalculator() {
         }
     }, [])
 
+    const onColorSet = (color: string) => {
+        mesh.material = new THREE.MeshPhysicalMaterial({ clearcoat: 0.5,
+            clearcoatRoughness: 1,
+            metalness: 0.5,
+            roughness: 1,
+            color: color
+        })
+    }
+
     return (
         <div className="PrinterCalculator">
             <div className="PrinterCalculator__scene">
@@ -176,6 +196,7 @@ export default function PrinterCalculator() {
 
             <div className="PrinterCalculator__sideBar">
                 <PrinterCalculatorSideBar
+                    onColorSet={onColorSet}
                     loadSTLGeometry={loadSTLGeometry}
                 />
             </div>

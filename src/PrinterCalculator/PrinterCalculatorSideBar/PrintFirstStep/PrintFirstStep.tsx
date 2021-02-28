@@ -17,7 +17,7 @@ export default function PrintFirstStep(props: PrintFirstStepProps) {
 
     return (
         <div className="PrintFirstStep">
-            <h4 className="PrintFirstStep__title">Upload your 3D model and you can:</h4>
+            <h3 className="PrintFirstStep__title">Upload your 3D model and you can:</h3>
 
             <div className="PrintFirstStep__benefits">
                 <div className="PrintFirstStep__benefitsItem">
@@ -34,19 +34,18 @@ export default function PrintFirstStep(props: PrintFirstStepProps) {
                 </div>
             </div>
 
-            <Button
-                className="PrintFirstStep__uploadButton"
-                icon={<UploadOutlined />}
-                onClick={() => {
-                    if (uploadInputRef && uploadInputRef.current) {
-                        uploadInputRef.current.click();
-                    }
-                }}
-            >
-                Upload file
-            </Button>
+            <div className="PrintFirstStep__uploadButton">
+                <Button
 
-            <div className="PrintFirstStep__acceptedFormat">
+                    icon={<UploadOutlined />}
+                    onClick={() => {
+                        if (uploadInputRef && uploadInputRef.current) {
+                            uploadInputRef.current.click();
+                        }
+                    }}
+                >
+                    Upload file
+                </Button>
                 <p>Accepted file formats: <strong>STL</strong></p>
             </div>
 

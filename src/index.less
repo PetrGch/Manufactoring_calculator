@@ -1,4 +1,5 @@
-@import '~antd/dist/antd.css';
+@import "~antd/dist/antd.css";
+@import "src/utils/colors";
 
 * {
   margin: 0;
@@ -9,4 +10,28 @@
 body, html, #root {
   width: 100%;
   height: 100%;
+}
+
+button {
+  &.ant-btn:hover,
+  &.ant-btn:focus,
+  &::selection {
+    color: @orange;
+    border-color: @orange;
+  }
+}
+
+.ant-menu-item:hover,
+.ant-menu-item-active,
+.ant-menu:not(.ant-menu-inline) .ant-menu-submenu-open,
+.ant-menu-submenu-active,
+.ant-menu-submenu-title:hover,
+.ant-menu-item-selected {
+  color: @orange;
+}
+
+.ant-menu-item:active,
+.ant-menu-submenu-title:active,
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  background: @orange-light;
 }

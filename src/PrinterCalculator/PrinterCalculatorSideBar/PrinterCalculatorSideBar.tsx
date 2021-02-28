@@ -1,12 +1,11 @@
-import React, {useEffect, useRef, useState} from "react";
-import {Button} from "antd";
-import {UploadOutlined} from "@ant-design/icons";
+import React, {useState} from "react";
+import {BufferGeometry} from "three";
 
-import "./PrinterCalculatorSideBar.less";
 import PrintFirstStep from "./PrintFirstStep/PrintFirstStep";
 import PrintSecondStep from "./PrintSecondStep/PrintSecondStep";
-import {BufferGeometry} from "three";
 import {getModelArea} from "../../utils/calculatorsUtils";
+
+import "./PrinterCalculatorSideBar.less";
 
 export enum PRINTER_CALCULATOR_STEP {
     FIRST_STEP = "FIRST_STEP",
@@ -24,11 +23,12 @@ interface PrinterCalculatorSideBarParameterState {
 }
 
 interface PrinterCalculatorSideBarProps {
+    onColorSet: (color: string) => void;
     loadSTLGeometry: (path: string, loaded?: (geometry: BufferGeometry) => void, error?: (err: ErrorEvent) => void) => void;
 }
 
 export default function PrinterCalculatorSideBar(props: PrinterCalculatorSideBarProps) {
-    const { loadSTLGeometry } = props;
+    const { loadSTLGeometry, onColorSet } = props;
     const [stepState, setStepState] = useState<PrinterCalculatorSideBarStepState>({
         [PRINTER_CALCULATOR_STEP.FIRST_STEP]: false,
     });
@@ -84,6 +84,7 @@ export default function PrinterCalculatorSideBar(props: PrinterCalculatorSideBar
                 <PrintSecondStep
                     setStepStatus={setStepStatus}
                     parameters={parameterState}
+                    onColorSet={onColorSet}
                 />
             </div>
         </div>

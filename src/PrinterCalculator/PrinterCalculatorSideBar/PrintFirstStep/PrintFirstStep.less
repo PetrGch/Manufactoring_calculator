@@ -3,27 +3,26 @@
 .PrintFirstStep {
   display: flex;
   flex-direction: column;
-  align-items: center;
 
   &__uploadInput {
     display: none;
   }
 
   &__uploadButton {
-    width: 100%;
-    max-width: 200px;
-    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-    &.ant-btn:hover,
-    &.ant-btn:focus,
-    &::selection {
-      color: @orange;
-      border-color: @orange;
+    & > button {
+      width: 100%;
+      max-width: 200px;
+      min-width: 100px;
     }
   }
 
   &__title {
     width: 100%;
+    color: @orange;
   }
 
   &__benefits {
