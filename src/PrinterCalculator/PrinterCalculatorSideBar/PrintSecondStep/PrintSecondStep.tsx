@@ -1,9 +1,10 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Dropdown, Menu} from "antd";
-import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import {DownOutlined, UpOutlined} from '@ant-design/icons';
 import {MenuClickEventHandler, MenuInfo} from "rc-menu/lib/interface";
 import {CirclePicker, ColorResult} from "react-color";
-import {PRINTER_CALCULATOR_STEP} from "../PrinterCalculatorSideBar";
+
+import {PRINTER_CALCULATOR_STEP, PrinterCalculatorSideBarParameterState} from "../PrinterCalculatorSideBar";
 import {roundNumber} from "../../../utils/formatter";
 import materialConfig from "./materialConfig";
 
@@ -25,32 +26,24 @@ function DropDownMenu({ onMaterialSelected }: { onMaterialSelected: MenuClickEve
 
 interface PrintSecondStepState {
     isMaterialOpen: boolean;
-    selectedMaterial: string;
-    selectedColor: string;
     selectedColors: string[];
 }
 
 const initialState: PrintSecondStepState = {
-    selectedColor: "",
     isMaterialOpen: false,
     selectedColors: [],
-    selectedMaterial: "Select material",
 }
 
 interface PrintSecondStepProps {
     onColorSet: (color: string) => void;
+    setParameters: (parameters: PrinterCalculatorSideBarParameterState) => void;
     setStepStatus: (step: PRINTER_CALCULATOR_STEP, stepState: boolean) => void;
-    parameters: {
-        width: number,
-        height: number,
-        depth: number,
-        area: number,
-    }
+    parameters: PrinterCalculatorSideBarParameterState;
 }
 
 export default function PrintSecondStep(props: PrintSecondStepProps) {
     const [state, setState] = useState<PrintSecondStepState>(initialState);
-    const { setStepStatus, onColorSet, parameters } = props;
+    const { setStepStatus, onColorSet, parameters, setParameters } = props;
     const isParameterExists = parameters.width && parameters.height && parameters.depth;
 
     const onMaterialToggled = (visible: boolean) => {
@@ -66,19 +59,45 @@ export default function PrintSecondStep(props: PrintSecondStepProps) {
         if (selectedMaterial) {
             setState({
                 ...state,
-                selectedMaterial: selectedMaterial.name,
                 selectedColors: selectedMaterial.colors.map((color) => color.code),
             })
+
+            setParameters({
+                ...parameters,
+                selectedMaterial: selectedMaterial.id,
+            });
         }
     }
 
     const onColorSelected = (color: ColorResult, event: React.ChangeEvent<HTMLInputElement>) => {
-        setState({
-            ...state,
+        setParameters({
+            ...parameters,
             selectedColor: color.hex,
-        })
+        });
         onColorSet(color.hex);
     }
+
+    const getMaterialById = (materialId: string) => {
+        const selectedMaterial = materialConfig.find((material) => material.id === materialId);
+
+        return selectedMaterial?.name || "";
+    }
+
+    const getColorsByMaterialId = (materialId: string) => {
+        const selectedMaterial = materialConfig.find((material) => material.id === materialId);
+
+        if (selectedMaterial && selectedMaterial.colors) {
+            return selectedMaterial.colors.map((color) => color.code);
+        }
+
+        return [];
+    }
+
+    useEffect(() => {
+        if (parameters.area) {
+            setStepStatus(PRINTER_CALCULATOR_STEP.SECOND_STEP, true);
+        }
+    }, [parameters.width, parameters.height, parameters.depth])
 
     return (
         <div className="PrintSecondStep">
@@ -91,34 +110,28 @@ export default function PrintSecondStep(props: PrintSecondStepProps) {
 
             <div className="PrintSecondStep__parameter">
                 <strong>Area (<span>mm&nbsp;&nbsp;</span>):</strong>
-                <span>{roundNumber(parameters.area)}</span>
+                <span>{roundNumber(parameters.area, "≈")}</span>
             </div>
 
             <div className="PrintSecondStep__parameter">
-                <strong>Material:</strong>
+                <strong>Materials:</strong>
 
                 <Dropdown
                     overlay={<DropDownMenu onMaterialSelected={onMaterialSelected} />}
                     disabled={!isParameterExists}
                     onVisibleChange={onMaterialToggled}
                 >
-                    <Button>{state.selectedMaterial} {state.isMaterialOpen ? <UpOutlined/> : <DownOutlined/>}</Button>
+                    <Button>{getMaterialById(parameters.selectedMaterial)} {state.isMaterialOpen ? <UpOutlined/> : <DownOutlined/>}</Button>
                 </Dropdown>
             </div>
 
             <div className="PrintSecondStep__parameter PrintSecondStep__parameter_center-false">
-                <strong>Color:</strong>
+                <strong>Colors:</strong>
 
                 <div className="PrintSecondStep__parameterColor">
-                    <CirclePicker colors={state.selectedColors} onChange={onColorSelected}/>
+                    <CirclePicker colors={getColorsByMaterialId(parameters.selectedMaterial)} onChange={onColorSelected}/>
                 </div>
-                {/*<Dropdown overlay={<DropDownMenu/>} disabled={!isParameterExists}>*/}
-                {/*    <Button>*/}
-                {/*        Select color <DownOutlined />*/}
-                {/*    </Button>*/}
-                {/*</Dropdown>*/}
             </div>
-
         </div>
     );
 }

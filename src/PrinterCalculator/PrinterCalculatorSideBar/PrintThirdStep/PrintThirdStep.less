@@ -1,0 +1,41 @@
+.PrintThirdStep {
+  display: flex;
+  flex-direction: column;
+
+  &__parameters {
+    display: flex;
+    align-items: center;
+    padding: 4px 4px 4px 20px;
+
+    & strong {
+      display: inline-block;
+      width: 130px;
+
+      & span {
+        position: relative;
+
+        &:after {
+          content: "2";
+          position: absolute;
+          top: -2px;
+          right: 2px;
+          font-weight: 700;
+          font-size: 10px;
+        }
+      }
+    }
+  }
+
+  &__orderButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+
+    & > button {
+      width: 100%;
+      max-width: 200px;
+      min-width: 100px;
+    }
+  }
+}

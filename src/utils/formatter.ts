@@ -1,5 +1,5 @@
-export function roundNumber(value?: number) {
+export function roundNumber(value?: number, prefix: string = "",  suffix: string = "") {
     if (!value) return 0;
 
-    return value.toFixed(2);
+    return `${prefix}${value.toFixed(2)}${suffix}`;
 }
